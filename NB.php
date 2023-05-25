@@ -59,7 +59,7 @@ $predictedLabels = $hasilPrediksi;
 $confusionMatrix = ConfusionMatrix::compute($actualLabels, $predictedLabels);
 
 // Print the confusion matrix
-echo "Hasil Confusion Matrix Algoritma Decision Tree";
+echo "Hasil Confusion Matrix Algoritma Naive Bayes";
 echo "<pre>";
 $labels = ['visual', 'auditori', 'kinestetik'];
 
