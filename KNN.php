@@ -1,6 +1,6 @@
 <?php
 
-use Phpml\Classification\SVC;
+use Phpml\Classification\KNearestNeighbors;
 use Phpml\Metric\Accuracy;
 use Phpml\Dataset\CsvDataset;
 use Phpml\CrossValidation\RandomSplit;
@@ -36,7 +36,7 @@ $testLabels = $dataset->getTestLabels();
 // classified start
 
 // assign class
-$classifier = new SVC();
+$classifier = new KNearestNeighbors();
 $classifier->train($trainSamples, $trainLabels);
 
 // loop all classified object start
@@ -59,7 +59,7 @@ $predictedLabels = $hasilPrediksi;
 $confusionMatrix = ConfusionMatrix::compute($actualLabels, $predictedLabels);
 
 // Print the confusion matrix
-echo "Hasil Confusion Matrix Algoritma Support Vector Classifier";
+echo "Hasil Confusion Matrix Algoritma K-Nearest Neighbour";
 echo "<pre>";
 $labels = ['visual', 'auditori', 'kinestetik'];
 
@@ -83,7 +83,7 @@ echo 'Akurasi = ' . Accuracy::score($actualLabels, $predictedLabels) * 100 . '%'
 <!DOCTYPE html>
 <html>
   <head>
-      <title>Prediksi Gaya Belajar dengan Support Vector Classifier</title>
+      <title>Prediksi Gaya Belajar dengan K-Nearest Neighbour</title>
       <style>
           table {
               border-collapse: collapse;
@@ -192,7 +192,7 @@ if (!empty($_FILES['inputData'])) {
     
     // loop all classified object start
 
-    echo "<hr><br>Hasil Klasifikasi Algoritma Support Vector Classifier dari file yang telah diupload:";
+    echo "<hr><br>Hasil Klasifikasi Algoritma K-Nearest Neighbour dari file yang telah diupload:";
     foreach ($uploadedSamples as $value) {
         # code...
         echo '<br><b>' . $classifier->predict($value) . '</b><hr>';

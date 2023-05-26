@@ -12,3 +12,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 // SVC
 include('./SVC.php');
+
+// Bagging
+// include('./Bagging.php');
+
+// RandomForest
+// include('./RandomForest.php');
