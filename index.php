@@ -8,10 +8,13 @@ require_once __DIR__ . '/vendor/autoload.php';
 // include('./DC.php');
 
 // Naive Bayes
-// include('./NB.php');
+include('./NB.php');
 
 // SVC
-include('./SVC.php');
+// include('./SVC.php');
+
+// KNN
+// include('./KNN.php');
 
 // Bagging
 // include('./Bagging.php');

@@ -10,11 +10,13 @@ use Phpml\FileUploader\FileUploader;
 // load csv file start
 
 $filename = __DIR__ . '/data.csv';
-$loadDataset = new CsvDataset($filename, 30, true);
 
 // load csv file end
 
 // preprocessing start
+
+// load and delete the row that has unknown gaya belajar
+$loadDataset = new CsvDataset($filename, 30, true);
 
 // train test split start
 
@@ -98,6 +100,7 @@ echo 'Akurasi = ' . Accuracy::score($actualLabels, $predictedLabels) * 100 . '%'
       </style>
   </head>
   <body>
+    
   <button onclick="toggleContent()">Show/Hide Hasil</button>
 
     <script>
@@ -145,7 +148,7 @@ echo 'Akurasi = ' . Accuracy::score($actualLabels, $predictedLabels) * 100 . '%'
     <!-- upload form start -->
     
     <form method="POST" enctype="multipart/form-data">
-      <label for="inputData">upload csv file tesing data: </label> 
+      <label for="inputData">upload csv file input data: </label> 
       <input type="file" name="inputData" accept=".csv">
       <hr>
       <input type="submit" value="Submit">
@@ -177,15 +180,21 @@ if (!empty($_FILES['inputData'])) {
     $labels = ['visual', 'auditori', 'kinestetik'];
 
     // Loop through the csv file and add a random label to each row
-    $header = '"VIS1","VIS2","VIS3","VIS4","VIS5","VIS6","VIS7","VIS8","VIS9","VIS10","AUD1","AUD2","AUD3","AUD4","AUD5","AUD6","AUD7","AUD8","AUD9","AUD10","KIN1","KIN2","KIN3","KIN4","KIN5","KIN6","KIN7","KIN8","KIN9","KIN10","Gaya Belajar"';
-    $samples = '';
-    foreach ($loadUploadFile as &$row) {
-        $row[] = $labels[array_rand($labels)];
-        $samples .= implode(',', $row) . "\n";   
-    }
+    $header = array(' ');
     
+    $samples = '';
+    $samples .= implode(',', $header) . "\n";
+    foreach ($loadUploadFile as $row) {
+        $row[] = $labels[array_rand($labels)];
+        $samples .= implode(',', $row) . "\n";
+    }
+
+    $samples = mb_convert_encoding($samples, 'ISO-8859-1', 'UTF-8');
+
+    $samples = explode('?', $samples);
+  
     // Write the csv file
-    file_put_contents($uploadedFileName, ($header . $samples));
+    file_put_contents($uploadedFileName, $samples);
     
     $loadUploadedDataset = new CsvDataset($uploadedFileName, 30, true);
     $uploadedSamples = $loadUploadedDataset->getSamples();
@@ -193,14 +202,16 @@ if (!empty($_FILES['inputData'])) {
     // loop all classified object start
 
     echo "<hr><br>Hasil Klasifikasi Algoritma Decision Tree dari file yang telah diupload:";
+    echo "<hr>";
     foreach ($uploadedSamples as $value) {
         # code...
-        echo '<br><b>' . $classifier->predict($value) . '</b><hr>';
+        echo '<b>' . $classifier->predict($value) . '</b><hr>';
     }
     
     // delete uploaded file
-    echo '<hr>';
+
     $upload->deleteFile($uploadedFileName);
+    echo '<hr>';
 
     // loop all classified object end
     

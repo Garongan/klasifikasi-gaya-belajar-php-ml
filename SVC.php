@@ -19,8 +19,8 @@ $loadDataset = new CsvDataset($filename, 30, true);
 // train test split start
 
 // get 70% data train 30% data test and 5 seed
-$train_test_split = 0.7;
-$dataset = new RandomSplit($loadDataset, $train_test_split, 1234);
+$train_test_split = 0.4;
+$dataset = new RandomSplit($loadDataset, $train_test_split, 5);
 
 // train group
 $trainSamples = $dataset->getTrainSamples();
