@@ -1,10 +1,8 @@
 <?php
 
 use Phpml\Classification\DecisionTree;
-use Phpml\Metric\Accuracy;
 use Phpml\Dataset\CsvDataset;
 use Phpml\CrossValidation\RandomSplit;
-use Phpml\Metric\ConfusionMatrix;
 use Phpml\FileUploader\FileUploader;
 
 // load csv file start
@@ -21,7 +19,7 @@ $loadDataset = new CsvDataset($filename, 30, true);
 // train test split start
 
 // get 70% data train 30% data test and 5 seed
-$train_test_split = 0.2;
+$train_test_split = 0.1;
 $dataset = new RandomSplit($loadDataset, $train_test_split, 5);
 
 // train group
@@ -53,32 +51,18 @@ foreach ($testSamples as $value) {
 
 // classified end
 
-// evaluasi akurasi start
-
 $actualLabels = $testLabels;
 $predictedLabels = $hasilPrediksi;
 
-$confusionMatrix = ConfusionMatrix::compute($actualLabels, $predictedLabels);
-
-// Print the confusion matrix
-echo "Hasil Confusion Matrix Algoritma Decision Tree";
-echo "<pre>";
-$labels = ['visual', 'auditori', 'kinestetik'];
-
-$header = array_merge([''], $labels);
-$rows = [];
-for ($i = 0; $i < count($labels); $i++) {
-    $rows[] = array_merge([$labels[$i]], $confusionMatrix[$i]);
+// Visualize the results
+// Export the predicted labels and the original labels to a CSV file
+$exportData = array_map(null, $predictedLabels, $actualLabels);
+$fp = fopen(__DIR__ . '/results.csv', 'w');
+fputcsv($fp, ['predicted', 'actual']);
+foreach ($exportData as $fields) {
+    fputcsv($fp, $fields);
 }
-$table = array_merge([$header], $rows);
-$rowLengths = array_map('max', array_map('array_map', array_fill(0, count($table[0]), 'strlen'), $table));
-$formatString = implode('  ', array_map(function($len) { return "%-{$len}s"; }, $rowLengths));
-foreach ($table as $row) {
-    echo vsprintf($formatString, $row) . PHP_EOL;
-}
-echo "</pre>";
-
-echo 'Akurasi = ' . Accuracy::score($actualLabels, $predictedLabels) * 100 . '%';
+fclose($fp);
 
 ?>
 <!-- html tag title -->
@@ -100,50 +84,6 @@ echo 'Akurasi = ' . Accuracy::score($actualLabels, $predictedLabels) * 100 . '%'
       </style>
   </head>
   <body>
-    
-  <button onclick="toggleContent()">Show/Hide Hasil</button>
-
-    <script>
-    function toggleContent() {
-    var content = document.getElementById("content");
-    if (content.style.display === "none") {
-        content.style.display = "block";
-    } else {
-        content.style.display = "none";
-    }
-    }
-    </script>
-    <div class="content" id="content" style="display: none;">
-    <!-- table view -->
-    <i>Hasil klasifikasi decision tree dengan <?php echo (1-$train_test_split) * 100; ?>% data training dan <?php echo $train_test_split * 100; ?>% data testing </i>
-      <table>
-          <thead>
-              <tr>
-                  <th>Nomor</th>
-                  <th>Kelas Prediksi</th>
-                  <th>Kelas Aktual</th>
-              </tr>
-          </thead>
-          <tbody>
-              <?php
-              $counter = 0;
-              foreach ($predictedLabels as $row): 
-              ?>
-              <tr>
-                  <td><?php echo $counter + 1; ?></td>
-                  <td><?php echo $row; ?></td>
-                  <td><?php echo $actualLabels[$counter]; ?></td>
-              </tr>
-              <?php 
-              $counter++; 
-              endforeach; 
-              ?>
-          </tbody>
-      </table>
-      
-    <!-- table view end -->
-    </div>
-    <hr>
 
     <!-- upload form start -->
     
@@ -156,7 +96,6 @@ echo 'Akurasi = ' . Accuracy::score($actualLabels, $predictedLabels) * 100 . '%'
     <hr>
     
     <!-- upload form end -->
-
 
     </body>
 </html>
