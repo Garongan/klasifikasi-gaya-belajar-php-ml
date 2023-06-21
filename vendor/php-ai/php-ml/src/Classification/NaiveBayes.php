@@ -136,7 +136,7 @@ class NaiveBayes implements Classifier
     /**
      * Calculates the probability P(label|sample_n)
      */
-    private function sampleProbability(array $sample, int $feature, string $label): float
+    public function sampleProbability(array $sample, int $feature, string $label): float
     {
         if (!isset($sample[$feature])) {
             throw new InvalidArgumentException('Missing feature. All samples must have equal number of features');

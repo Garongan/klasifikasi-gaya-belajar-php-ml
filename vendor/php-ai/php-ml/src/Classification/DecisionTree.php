@@ -193,6 +193,13 @@ class DecisionTree implements Classifier
         return $this->tree->getHTML($this->columnNames);
     }
 
+    public function saveDOTToFile(string $filename, ?array $columnNames = null): bool
+    {
+        $dot = $this->tree->generateDOT($this->columnNames);
+
+        return file_put_contents($filename, $dot) !== false;
+    }
+
     /**
      * This will return an array including an importance value for
      * each column in the given dataset. The importance values are

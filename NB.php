@@ -1,44 +1,12 @@
 <?php
 
+// import class
 use Phpml\Classification\NaiveBayes;
-use Phpml\Dataset\CsvDataset;
-use Phpml\CrossValidation\RandomSplit;
-use Phpml\FileUploader\FileUploader;
 
-// load csv file start
+// set label untuk hasil klasifiaksi algortime 
+$labelAlgoritme = "Hasil Klasifikasi Algoritme Naïve Bayes dari file yang telah diupload:";
 
-$filename = __DIR__ . '/data.csv';
-$loadDataset = new CsvDataset($filename, 30, true);
-
-// load csv file end
-
-// preprocessing start
-
-// train test split start
-
-// get 90% data train 10% data test and 5 seed
-$train_test_split = 0.1;
-$dataset = new RandomSplit($loadDataset, $train_test_split, 5);
-
-// get train data start
-
-$trainSamples = $dataset->getTrainSamples();
-$trainLabels =  $dataset->getTrainLabels();
-
-// get train data end
-
-// get test data start
-
-$testSamples = $dataset->getTestSamples();
-$testLabels = $dataset->getTestLabels();
-
-// get test data end
-
-// train test split end
-
-// preprocessing end
-
-// classified start
+// train start
 
 // assign class
 $classifier = new NaiveBayes();
@@ -54,7 +22,7 @@ foreach ($testSamples as $value) {
 
 // loop all classified object end
 
-// classified end
+// train end
 
 $actualLabels = $testLabels;
 $predictedLabels = $hasilPrediksi;
@@ -70,96 +38,3 @@ foreach ($exportData as $fields) {
 fclose($fp);
 
 ?>
-<!-- html tag title -->
-<!DOCTYPE html>
-<html>
-  <head>
-      <title>Prediksi Gaya Belajar dengan Naive Bayes</title>
-      <style>
-          table {
-              border-collapse: collapse;
-              width: 100%;
-          }
-
-          th, td {
-              border: 1px solid black;
-              padding: 8px;
-              text-align: left;
-          }
-      </style>
-  </head>
-  <body>
-    <!-- upload form start -->
-    
-    <form method="POST" enctype="multipart/form-data">
-      <label for="inputData">upload csv file input data: </label> 
-      <input type="file" name="inputData" accept=".csv">
-      <hr>
-      <input type="submit" value="Submit">
-    </form>
-    <hr>
-    
-    <!-- upload form end -->
-
-
-    </body>
-</html>
-
-<!-- klasifikasi upload data start -->
-<?php
-
-if (!empty($_FILES['inputData'])) {
-    # code...
-
-    $uploadedFile = $_FILES['inputData'];
-    // upload file
-    $upload = new FileUploader(__DIR__ . '/');
-    $upload->uploadFile($uploadedFile);
-    $uploadedFileName = $uploadedFile['name'];
-
-    // load csv uploaded file
-    $loadUploadFile = array_map('str_getcsv', file($uploadedFileName));
-
-    // Create an array of labels
-    $labels = ['visual', 'auditori', 'kinestetik'];
-
-    // Loop through the csv file and add a random label to each row
-    $header = array(' ');
-    
-    $samples = '';
-    $samples .= implode(',', $header) . "\n";
-    foreach ($loadUploadFile as $row) {
-        $row[] = $labels[array_rand($labels)];
-        $samples .= implode(',', $row) . "\n";
-    }
-
-    $samples = mb_convert_encoding($samples, 'ISO-8859-1', 'UTF-8');
-
-    $samples = explode('?', $samples);
-  
-    // Write the csv file
-    file_put_contents($uploadedFileName, $samples);
-    
-    $loadUploadedDataset = new CsvDataset($uploadedFileName, 30, true);
-    $uploadedSamples = $loadUploadedDataset->getSamples();
-    
-    // loop all classified object start
-
-    echo "<hr><br>Hasil Klasifikasi Algoritma Naive Bayes dari file yang telah diupload:";
-    echo "<hr>";
-    foreach ($uploadedSamples as $value) {
-        # code...
-        echo '<b>' . $classifier->predict($value) . '</b><hr>';
-    }
-    
-    // delete uploaded file
-
-    $upload->deleteFile($uploadedFileName);
-    echo '<hr>';
-
-    // loop all classified object end
-    
-}
-
-?>
-<!-- klasifikasi upload data end -->

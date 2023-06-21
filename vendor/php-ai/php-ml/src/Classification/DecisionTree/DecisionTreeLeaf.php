@@ -122,23 +122,23 @@ class DecisionTreeLeaf
     public function getHTML(?array $columnNames = null): string
     {
         if ($this->isTerminal) {
-            $value = "<b>${this}->classValue</b>";
+            $value = "<b>" .$this->classValue. "</b>";
         } else {
             $value = $this->value;
             if ($columnNames !== null) {
                 $col = $columnNames[$this->columnIndex];
             } else {
-                $col = "col_$this->columnIndex";
+                $col = "col_" .$this->columnIndex;
             }
 
             if ((bool) preg_match('/^[<>=]{1,2}/', (string) $value) === false) {
-                $value = "=${value}";
+                $value = "=$value";
             }
 
-            $value = "<b>${col} ${value}</b><br>Gini: ".number_format($this->giniIndex, 2);
+            $value = "<b>" . $col . $value ."</b><br>Gini: ".number_format($this->giniIndex, 2);
         }
 
-        $str = "<table ><tr><td colspan=3 align=center style='border:1px solid;'>${value}</td></tr>";
+        $str = "<table ><tr><td colspan=3 align=center style='border:1px solid;'>". $value ."</td></tr>";
 
         if ($this->leftLeaf !== null || $this->rightLeaf !== null) {
             $str .= '<tr>';
@@ -162,4 +162,59 @@ class DecisionTreeLeaf
 
         return $str;
     }
+
+    
+
+    public function generateDOT(?array $columnNames = null): string
+    {
+        $dot = "digraph DecisionTree {\n";
+        $dot .= "    node [shape=box];\n";
+        $dot .= $this->generateDOTNodes($columnNames);
+        $dot .= "}\n";
+
+        return $dot;
+    }
+
+    private function generateDOTNodes(?array $columnNames = null): string
+    {
+        $dotNodes = "";
+
+        if ($this->isTerminal) {
+            $value = "<b>" . $this->classValue . "</b>";
+        } else {
+            $value = $this->value;
+            if ($columnNames !== null) {
+                $col = $columnNames[$this->columnIndex];
+            } else {
+                $col = "col_" . $this->columnIndex;
+            }
+
+            if ((bool)preg_match('/^[<>=]{1,2}/', (string)$value) === false) {
+                $value = "=$value";
+            }
+
+            $value = $col . $value;
+        }
+
+        // Generate a unique node ID based on the object's memory address
+        $nodeId = spl_object_id($this);
+
+        $dotNodes .= "    node_$nodeId [label=<$value>];\n";
+
+        if ($this->leftLeaf !== null) {
+            $leftNodeId = spl_object_id($this->leftLeaf);
+            $dotNodes .= "    node_$nodeId -> node_$leftNodeId [label=\"Yes\"];\n";
+            $dotNodes .= $this->leftLeaf->generateDOTNodes($columnNames);
+        }
+
+        if ($this->rightLeaf !== null) {
+            $rightNodeId = spl_object_id($this->rightLeaf);
+            $dotNodes .= "    node_$nodeId -> node_$rightNodeId [label=\"No\"];\n";
+            $dotNodes .= $this->rightLeaf->generateDOTNodes($columnNames);
+        }
+
+        return $dotNodes;
+    }
+
+
 }
